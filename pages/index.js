@@ -1,37 +1,49 @@
 // pages/index.js
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
-import { Container, Typography, Button, Box } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import Navbar from '../components/Navbar';
+import LandingPage from '../components/LandingPage';
+import Dashboard from '../components/Dashboard';
+import { Alert, Snackbar } from '@mui/material';
 
+<meta http-equiv="Content-Security-Policy" 
+  content="script-src 'self' https://apis.google.com https://accounts.google.com; object-src 'none';" 
+/>
 export default function Home() {
-  const { user, supabase } = useAuth();
+  const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    if (!user) {
-      router.push('/login');
+    setMounted(true);
+    // Controlla se è presente il parametro "connected=true" nella query
+    if (router.query.connected === "true") {
+      setOpenSnackbar(true);
+      // Rimuove il parametro dalla query dopo qualche secondo (opzionale)
+      setTimeout(() => {
+        router.replace("/", undefined, { shallow: true });
+      }, 3000);
     }
-  }, [user]);
+  }, [router.query]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
+  if (!mounted) return null;
 
   return (
-    <Container maxWidth="md">
-      <Box mt={8}>
-        <Typography variant="h3">Benvenuto in ReelSync</Typography>
-        <Typography variant="body1" mt={2}>
-          La tua piattaforma per gestire e programmare la pubblicazione di video su vari social.
-        </Typography>
-        <Box mt={4}>
-          <Button variant="contained" color="secondary" onClick={handleLogout}>
-            Logout
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+    <>
+      <Navbar />
+      {user ? <Dashboard /> : <LandingPage />}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success" sx={{ width: "100%" }}>
+          YouTube collegato con successo!
+        </Alert>
+      </Snackbar>
+    </>
   );
 }

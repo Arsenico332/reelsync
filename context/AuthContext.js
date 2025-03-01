@@ -6,19 +6,22 @@ const SupabaseContext = createContext();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-console.log("Supabase URL:", supabaseUrl);
-console.log("Supabase Anon Key:", supabaseAnonKey);
-
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error("Missing Supabase URL or ANON KEY in environment variables.");
+}
+
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
+    async function getSession() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      setUser(sessionData?.session?.user ?? null);
+    }
+    getSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);

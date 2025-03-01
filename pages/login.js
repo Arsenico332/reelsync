@@ -16,7 +16,8 @@ const Login = () => {
     setMounted(true);
   }, []);
 
-  //if (!mounted) return null;
+  // Per evitare problemi di hydration, si potrebbe condizionare il rendering
+  if (!mounted) return null;
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,11 +30,8 @@ const Login = () => {
       console.log("Risposta login:", { data, error });
       if (error) {
         setError(error.message);
-        console.error("Errore login:", error);
       } else if (!data.session) {
-        // Se non c'è una sessione, probabilmente l'utente non esiste o le credenziali sono errate
         setError("Nessuna sessione attiva. Verifica le credenziali o registrati.");
-        console.warn("Nessuna sessione attiva:", data);
       } else {
         router.push('/');
       }

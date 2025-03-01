@@ -1,10 +1,17 @@
 // pages/connect-youtube.js
 import { Container, Typography, Button, Box } from '@mui/material';
+import { useAuth } from '../context/AuthContext';
 
 const ConnectYouTube = () => {
+  const { user } = useAuth();
+
   const handleConnect = () => {
-    // Reindirizza l'utente all'API route che inizia il flusso OAuth
-    window.location.href = '/api/connect-youtube';
+    if (!user) {
+      alert("Devi essere loggato per connettere YouTube");
+      return;
+    }
+    // Passa lo user ID come parametro state
+    window.location.href = `/api/connect-youtube?state=${user.id}`;
   };
 
   return (

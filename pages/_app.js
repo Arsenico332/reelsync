@@ -1,16 +1,15 @@
 // pages/_app.js
-import { AuthProvider } from '../context/AuthContext';
-import { ThemeProvider } from '@mui/material/styles';
-import darkTheme from '../theme';
 import '../styles/globals.css';
+import { AuthProvider } from '../context/AuthContext';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function MyApp({ Component, pageProps }) {
   return (
-    <AuthProvider>
-      <ThemeProvider theme={darkTheme}>
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+      <AuthProvider>
         <Component {...pageProps} />
-      </ThemeProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 
